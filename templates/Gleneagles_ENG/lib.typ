@@ -1,5 +1,7 @@
 #import "@preview/hydra:0.6.2": anchor, hydra
 
+#let display-logo = sys.inputs.at("args", default: (display_logo: true)).display_logo
+
 #let date-format = "[day]/[month]/[year]"
 #let neutral = rgb("#B0BDC1")
 #let primary = rgb("#44b6bd")
@@ -70,7 +72,9 @@
 #let standard-page-background(report) = context {
   align(top)[
     #image("images/header-background.png")
-    #place(top + start, pad(top: 8pt, left: 8pt, image("images/gleneagles-header-logo-full.png")))
+    #if display-logo {
+      place(top + start, pad(top: 8pt, left: 8pt, image("images/gleneagles-header-logo-full.png")))
+    }
     #place(top + end, pad(top: 20pt, right: 15pt, header-text[
       NGS 腸道微生態檢測\
       NGS Gut Microbiome Health Screening Test

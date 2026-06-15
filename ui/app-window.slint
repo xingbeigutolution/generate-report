@@ -1,4 +1,9 @@
-import { VerticalBox, HorizontalBox } from "std-widgets.slint";
+import {
+    VerticalBox,
+    HorizontalBox,
+    ScrollView,
+    ListView,
+} from "std-widgets.slint";
 import { Select, SelectItem } from "slintcn/components/select.slint";
 import { Label, LabelVariant } from "slintcn/components/label.slint";
 import {
@@ -21,6 +26,7 @@ export component AppWindow inherits Window {
     in property <bool> show-success: false;
     in property <bool> show-failure: false;
     in property <bool> is-generating: false;
+    in property <string> error;
     callback generate(inputs: [Input], template-index: int);
     callback select-inputs();
     callback clear-inputs();
@@ -37,16 +43,16 @@ export component AppWindow inherits Window {
             }
         }
 
-        if inputs.length > 0: ScrollArea {
-            content-height: 100px;
-            height: 30px;
-            VerticalLayout {
-                height: 100px;
-                for input in inputs: Text {
+        if inputs.length > 0: ListView {
+            height: 40px;
+            for input in inputs: Rectangle {
+                height: 20px;
+                Text {
                     text: input.name;
                 }
             }
         }
+
         Label {
             text: "Select Template:";
             variant: LabelVariant.required;

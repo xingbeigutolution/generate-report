@@ -3,7 +3,9 @@
 #let cover-page(report) = page(background: align(bottom, image("images/cover-page-background.png")), margin: (
   x: 0.6in,
 ))[
-  #image("images/gleneagles-logo-full.jpg", width: 400pt)
+  #if display-logo {
+    image("images/gleneagles-logo-full.jpg", width: 400pt)
+  }
   #v(7em)
   #title()
   #v(5em)

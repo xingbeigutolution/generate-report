@@ -2,9 +2,11 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::{
+    error::Error,
+    fmt::Display,
     fs::OpenOptions,
     io::{BufReader, BufWriter, Read, Write},
-    path::Path,
+    path::PathBuf,
     sync::{Arc, Mutex},
     thread,
     time::Duration,
@@ -15,39 +17,51 @@ use include_dir::{Dir, include_dir};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use rfd::AsyncFileDialog;
 use slint::{Model, ModelRc, SharedString, VecModel, spawn_local};
-use typst::foundations::{Bytes, IntoValue};
+use typst::foundations::{Bytes, Dict, IntoValue};
 use typst_as_lib::{TypstEngine, TypstTemplateMainFile};
 
 static TEMPLATES: Dir = include_dir!("$CARGO_MANIFEST_DIR/templates/");
 
-#[derive(Debug, Clone, IntoValue, IntoDict)]
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct StringError(String);
+impl Display for StringError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+impl Error for StringError {}
+
+#[derive(Debug, Clone, IntoDict)]
 struct TemplateInput {
     input_json: Bytes,
+    args: Dict,
+}
+
+#[derive(Debug, Clone, IntoValue, IntoDict)]
+struct GleneaglesTemplateArgs {
+    display_logo: bool,
 }
 
 slint::include_modules!();
 
-fn templates() -> Vec<String> {
-    TEMPLATES
-        .dirs()
-        .map(|dir| dir.path().to_str().unwrap().to_string())
-        .collect()
+fn templates() -> &'static [&'static str] {
+    &["Gleneagles_ENG", "Gleneagles_ENG (white label)"]
 }
 
-fn template(name: impl AsRef<str>) -> anyhow::Result<TypstEngine<TypstTemplateMainFile>> {
+fn build_engine(name: impl AsRef<str>) -> anyhow::Result<TypstEngine<TypstTemplateMainFile>> {
     let name = name.as_ref();
-    let gleneagles_template = TEMPLATES.get_dir(name).unwrap();
-    let fonts = gleneagles_template.find(&format!("{name}/**/*.ttf"))?;
-    let source_files = gleneagles_template.find(&format!("{name}/**/*.typ"))?;
-    let other_files = gleneagles_template
+    let template_dir = TEMPLATES.get_dir(name).unwrap();
+    let fonts = template_dir.find(&format!("{name}/**/*.ttf"))?;
+    let source_files = template_dir.find(&format!("{name}/**/*.typ"))?;
+    let other_files = template_dir
         .find(&format!("{name}/**/*.png"))?
-        .chain(gleneagles_template.find(&format!("{name}/**/*.jpg"))?)
-        .chain(gleneagles_template.find(&format!("{name}/**/*.json"))?)
-        .chain(gleneagles_template.find(&format!("{name}/**/*.yml"))?)
-        .chain(gleneagles_template.find(&format!("{name}/**/*.yaml"))?);
+        .chain(template_dir.find(&format!("{name}/**/*.jpg"))?)
+        .chain(template_dir.find(&format!("{name}/**/*.json"))?)
+        .chain(template_dir.find(&format!("{name}/**/*.yml"))?)
+        .chain(template_dir.find(&format!("{name}/**/*.yaml"))?);
     Ok(TypstEngine::builder()
         .main_file(
-            gleneagles_template
+            template_dir
                 .get_file(format!("{name}/{name}.typ"))
                 .unwrap()
                 .contents_utf8()
@@ -84,32 +98,43 @@ fn template(name: impl AsRef<str>) -> anyhow::Result<TypstEngine<TypstTemplateMa
         .build())
 }
 
-fn compile(input: &String, selected_template: &String) -> anyhow::Result<()> {
+fn compile(input: &String, selected_template: impl AsRef<str>, args: Dict, template_display_name: impl AsRef<str>) -> anyhow::Result<()> {
+    let selected_template = selected_template.as_ref();
+    let template_display_name = template_display_name.as_ref();
     println!("Reading input json");
     let mut reader = BufReader::new(OpenOptions::new().read(true).open(input)?);
     let mut input_json = Vec::new();
     reader.read_to_end(&mut input_json)?;
     println!("Finished reading input json");
     let input_json = Bytes::new(input_json);
-    let output_filename = input.split(".json").nth(0).unwrap().to_string() + ".pdf";
-    println!(
-        "Compiling:\n\ttemplate: {selected_template}\n\tinput: {input}\n\toutput: {output_filename}"
-    );
-    match template(&selected_template)?
-        .compile_with_input(TemplateInput { input_json }.into_dict())
+    println!("Compiling template: {selected_template}");
+    match build_engine(&selected_template)?
+        .compile_with_input(TemplateInput { input_json, args }.into_dict())
         .output
     {
         Ok(doc) => {
             print!("Successfully compiled input {input}. ");
             match typst_pdf::pdf(&doc, &Default::default()) {
                 Ok(pdf) => {
+                    let input_pathbuf = PathBuf::from(input);
+                    let sample_id = input_pathbuf
+                        .file_name()
+                        .unwrap()
+                        .to_str()
+                        .unwrap()
+                        .split("_")
+                        .nth(0)
+                        .unwrap();
+                    let output_pathbuf = PathBuf::from(input);
+                    let output_filename = format!("{sample_id}_{template_display_name}.pdf");
+                    let output_filepath = output_pathbuf.parent().unwrap().join(&output_filename);
                     println!("Writing output PDF to {output_filename}");
                     let mut writer = BufWriter::new(
                         OpenOptions::new()
                             .read(true)
                             .write(true)
                             .create(true)
-                            .open(output_filename)?,
+                            .open(output_filepath)?,
                     );
                     writer.write(&pdf)?;
                     writer.flush()?;
@@ -129,23 +154,24 @@ fn compile(input: &String, selected_template: &String) -> anyhow::Result<()> {
 
 fn main() -> anyhow::Result<()> {
     let app = AppWindow::new()?;
-    app.set_templates(ModelRc::new(VecModel::from_iter(templates().iter().map(
-        |template| SelectItem {
-            label: SharedString::from(template),
-            value: SharedString::from(template),
-        },
-    ))));
+    app.set_templates(ModelRc::new(VecModel::from_iter(
+        templates().into_iter().map(|template| SelectItem {
+            label: SharedString::from(*template),
+            value: SharedString::from(*template),
+        }),
+    )));
     app.on_select_inputs({
         let app = app.clone_strong();
         move || {
             _ = spawn_local({
                 let app = app.clone_strong();
                 async move {
-                    if let Some(files) = AsyncFileDialog::new()
+                    if let Some(mut files) = AsyncFileDialog::new()
                         .add_filter("Report Input", &["json"])
                         .pick_files()
                         .await
                     {
+                        files.sort_by_key(|file| file.file_name());
                         app.set_inputs(ModelRc::new(VecModel::from_iter(files.iter().map(
                             |file| {
                                 Input {
@@ -172,9 +198,9 @@ fn main() -> anyhow::Result<()> {
         let app = app.clone_strong();
         move || app.set_inputs(ModelRc::new(VecModel::from_iter([])))
     });
-    let is_successful = Arc::new(Mutex::new(None as Option<bool>));
+    let generate_res = Arc::new(Mutex::new(None as Option<Result<(), String>>));
     app.on_generate({
-        let is_successful = is_successful.clone();
+        let generate_res = generate_res.clone();
         let app = app.clone_strong();
         move |inputs, template_index| {
             app.set_is_generating(true);
@@ -182,48 +208,65 @@ fn main() -> anyhow::Result<()> {
                 .iter()
                 .map(|input| input.path.as_str().to_string())
                 .collect::<Vec<_>>();
-            let selected_template = templates()[template_index as usize].clone();
+            let selected_template = templates()[template_index as usize];
             println!("Inputs: {inputs:?}, selected template: {selected_template}");
             thread::spawn({
-                let is_successful = is_successful.clone();
+                let generate_res = generate_res.clone();
                 move || {
                     println!("Spawned thread");
-                    if inputs
+                    let res = inputs
                         .par_iter()
-                        .map(|input| compile(input, &selected_template))
-                        .all(|result| result.is_ok())
-                    {
-                        *is_successful.lock().unwrap() = Some(true);
+                        .map(|input| match selected_template {
+                            "Gleneagles_ENG" => compile(
+                                input,
+                                "Gleneagles_ENG",
+                                GleneaglesTemplateArgs { display_logo: true }.into_dict(),
+                                selected_template,
+                            ),
+                            "Gleneagles_ENG (white label)" => compile(
+                                input,
+                                "Gleneagles_ENG",
+                                GleneaglesTemplateArgs {
+                                    display_logo: false,
+                                }
+                                .into_dict(),
+                                selected_template
+                            ),
+                            _ => anyhow::Result::Err(anyhow::Error::new(StringError(
+                                "Template not implemented".to_string(),
+                            ))),
+                        })
+                        .find_any(|res| res.is_err());
+                    *generate_res.lock().unwrap() = Some(if let Some(Err(err)) = res {
+                        Err(err.to_string())
                     } else {
-                        *is_successful.lock().unwrap() = Some(false);
-                    }
+                        Ok(())
+                    });
                 }
             });
-            let is_successful = is_successful.clone();
+            let generate_res = generate_res.clone();
             let app = app.clone_strong();
             _ = spawn_local(async_compat::Compat::new(async move {
-                let mut resolved = false;
                 for _ in 0..400 {
-                    match *is_successful.lock().unwrap() {
-                        Some(is_successful) => {
-                            if is_successful {
+                    if let Some(res) = generate_res.lock().unwrap().as_ref() {
+                        match res {
+                            Ok(_) => {
                                 app.set_show_success(true);
                                 tokio::time::sleep(Duration::from_secs(1)).await;
                                 app.set_show_success(false);
-                                resolved = true;
                             }
-                            break;
+                            Err(e) => {
+                                eprintln!("{e}");
+                                app.set_show_failure(true);
+                                tokio::time::sleep(Duration::from_secs(1)).await;
+                                app.set_show_failure(false);
+                            }
                         }
-                        None => {}
+                        break;
                     }
                     tokio::time::sleep(Duration::from_millis(100)).await;
                 }
-                if !resolved {
-                    app.set_show_failure(true);
-                    tokio::time::sleep(Duration::from_secs(1)).await;
-                    app.set_show_failure(false);
-                }
-                *is_successful.lock().unwrap() = None;
+                *generate_res.lock().unwrap() = None;
                 app.set_is_generating(false);
             }));
         }
