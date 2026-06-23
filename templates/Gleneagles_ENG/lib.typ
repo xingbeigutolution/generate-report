@@ -243,6 +243,7 @@
     it.body,
   ))
   set text(size: 12pt, font: ((name: "Mulish", covers: "latin-in-cjk"), "Noto Sans TC"), weight: "medium")
+  show smartquote: set text(features: ("pwid",)) 
 
   body
 }

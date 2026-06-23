@@ -188,11 +188,23 @@
   "Metabolism": {
     "zh_HK": "代謝水平"
   },
+  "Metabolic Disease": {
+    "zh_HK": "代謝疾病"
+  },
+  "Mental Disease": {
+    "zh_HK": "精神疾病"
+  },
   "Mental Health": {
     "zh_HK": "精神健康"
   },
   "Cognition": {
     "zh_HK": "認知功能"
+  },
+  "Cognitive Disease": {
+    "zh_HK": "認知疾病"
+  },
+  "Autoimmunity Disease": {
+    "zh_HK": "自體免疫疾病"
   },
   "Autoimmunity": {
     "zh_HK": "自體免疫"
@@ -250,6 +262,15 @@
   },
   "Eczema": {
     "zh_HK": "濕疹"
+  },
+  "Superfood": {
+    "zh_HK": "超級食物"
+  },
+  "Enjoy": {
+    "zh_HK": "享受"
+  },
+  "Minimize": {
+    "zh_HK": "盡量減少"
   },
   "Health Conditions Overview": {
     "zh_HK": "健康情況總覽"

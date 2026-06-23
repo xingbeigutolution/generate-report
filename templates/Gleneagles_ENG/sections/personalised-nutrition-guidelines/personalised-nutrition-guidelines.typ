@@ -23,7 +23,7 @@
     #let number-of-recommendations(category, tier) = (
       food-categories.at(category).filter(food => recommendations.at(food, default: "") == tier).len()
     )
-    #let recommendations-aggregate(category, tier) = align(horizon, stack(dir: ltr, [Superfood: ], pad(x: 8pt, circle(
+    #let recommendations-aggregate(category, tier) = align(horizon, stack(dir: ltr, [#tier: ], pad(x: 8pt, circle(
       fill: primary.lighten(20%),
       radius: 14pt,
       stroke: none,
