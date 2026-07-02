@@ -17,6 +17,7 @@
       header
       place(horizon, [= #section-header])
     })
+  place(top + end, pad(top: 0.6em, right: 1em, image("images/gutolution_logo_header.png", width: 11em)))
   })
 }
 
