@@ -26,13 +26,13 @@
         align(horizon)[#intestinal.function],
         align(center + horizon, text(fill: if within-range(intestinal.reference_range, intestinal.result.value) { green } else {
           red
-        })[*#numfmt_i(intestinal.result.value) #intestinal.result.unit*]),
+        })[*#numfmt_i(intestinal.result.value) #intestinal.unit*]),
         align(center + horizon, if intestinal.reference_range.lower == none {
           [<#numfmt_i(intestinal.reference_range.upper) #intestinal.reference_range.unit]
         } else if intestinal.reference_range.upper == none {
-          [>#numfmt_i(intestinal.reference_range.lower) #intestinal.reference_range.unit]
+          [>#numfmt_i(intestinal.reference_range.lower) #intestinal.unit]
         } else {
-          box(align(left)[#numfmt_i(intestinal.reference_range.lower)-\ #numfmt_i(intestinal.reference_range.upper) #intestinal.reference_range.unit])
+          box(align(left)[#numfmt_i(intestinal.reference_range.lower)-\ #numfmt_i(intestinal.reference_range.upper) #intestinal.unit])
         }),
         align(center + horizon)[#intestinal.retest_interval],
       )
