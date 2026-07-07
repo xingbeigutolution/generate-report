@@ -28,7 +28,7 @@
           red
         })[*#numfmt_i(intestinal.result.value) #intestinal.unit*]),
         align(center + horizon, if intestinal.reference_range.lower == none {
-          [<#numfmt_i(intestinal.reference_range.upper) #intestinal.reference_range.unit]
+          [<#numfmt_i(intestinal.reference_range.upper) #intestinal.unit]
         } else if intestinal.reference_range.upper == none {
           [>#numfmt_i(intestinal.reference_range.lower) #intestinal.unit]
         } else {
