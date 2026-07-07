@@ -9,8 +9,7 @@
   )[\* Retesting timelines may vary depending on intervention type, clinical presentation, and individual response. Times for reference only],
 )[
   #set enum(numbering: "   1")
-  #show table.cell.where(x:1, y:0): it => align(start, it)
-  #show table.cell.where(x:2, y:0): it => align(start, it)
+  #show table.cell.where(x:1, y:0).or(x:2, y:0): it => align(start, it)
   #show table.cell.where(y: 0): it => align(center + horizon, strong(it))
   #show table.cell.where(x: 1).or(table.cell.where(x: 2)): it => text(features: ("tnum",), it)
   #table(
