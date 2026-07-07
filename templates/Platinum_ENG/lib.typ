@@ -1,7 +1,13 @@
 #import "@preview/hydra:0.6.3": anchor, hydra
 #import "@preview/oxifmt:1.0.0": strfmt
 
-#let numfmt(num) = strfmt("{:.2E}", num)
+#let numfmt(num) = strfmt("{:.2E}", num) //number format for pathogen and opportunistic bacteria
+#let numfmt_i(num) = {
+  if num < 1E-6 or num > 1E6 {
+    return strfmt("{:.2E}", num)
+  } 
+  else {num}
+} //number format for intestinal health markers
 #let within-range(range, num) = {
   if (range.lower != none and num < range.lower) {
     return false
