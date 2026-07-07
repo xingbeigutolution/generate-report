@@ -23,8 +23,10 @@
         align(center +horizon)[#(i+1)],
         align(horizon)[#intestinal.name],
         align(horizon)[#intestinal.function],
-        align(center + horizon, text(fill: if within-range(intestinal.reference_range, intestinal.result.rank) { green } else {
+        align(center + horizon, text(fill: if intestinal.result.rank == 1 { green } else if intestinal.result.rank == 3 {
           red
+        } else {
+          yellow
         })[*#numfmt_i(intestinal.result.value) #intestinal.unit*]),
         align(center + horizon, if intestinal.reference_range.lower == none {
           [<#numfmt_i(intestinal.reference_range.upper) #intestinal.unit]
