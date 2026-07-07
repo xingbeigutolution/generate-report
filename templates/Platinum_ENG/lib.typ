@@ -6,8 +6,8 @@
   if num < 1E-6 or num > 1E6 {
     return strfmt("{:.2E}", num)
   } 
-  else {return num}
-} //number format for intestinal health markers strfmt("{:.2f}", num)
+  else {num}
+} //number format for intestinal health markers
 #let within-range(range, num) = {
   if (range.lower != none and num < range.lower) {
     return false

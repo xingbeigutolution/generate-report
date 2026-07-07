@@ -8,6 +8,7 @@
     size: 8pt,
   )[\* Retesting timelines may vary depending on intervention type, clinical presentation, and individual response. Times for reference only],
 )[
+  #set enum(numbering: "   1")
   #show table.cell.where(x:1, y:0): it => align(start, it)
   #show table.cell.where(x:2, y:0): it => align(start, it)
   #show table.cell.where(y: 0): it => align(center + horizon, strong(it))
@@ -21,7 +22,7 @@
     ),
     ..for intestinal in report.intestinal_health_markers {
       (
-        align(center + horizon)[#intestinal.result.rank],
+        align(center +horizon)[+ ],
         align(horizon)[#intestinal.name],
         align(horizon)[#intestinal.function],
         align(center + horizon, text(fill: if within-range(intestinal.reference_range, intestinal.result.value) { green } else {
@@ -32,7 +33,7 @@
         } else if intestinal.reference_range.upper == none {
           [>#numfmt_i(intestinal.reference_range.lower) #intestinal.unit]
         } else {
-          box(align(left)[#numfmt_i(intestinal.reference_range.lower)-\ #numfmt_i(intestinal.reference_range.upper) #intestinal.unit])
+          box(align(center)[#numfmt_i(intestinal.reference_range.lower)-\ #numfmt_i(intestinal.reference_range.upper) #intestinal.unit])
         }),
         align(center + horizon)[#intestinal.retest_interval],
       )

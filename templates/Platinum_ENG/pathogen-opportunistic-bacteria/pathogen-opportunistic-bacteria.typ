@@ -21,7 +21,7 @@
     ..for pathogen in report.pathogens {
       (
         align(horizon)[_#pathogen.name _],
-        align(center + horizon, text(fill: if within-range(pathogen.reference_range, pathogen.result.value) { green } else {
+        align(center + horizon, text(fill: if within-range(pathogen.reference_range, pathogen.result) { green } else {
           red
         })[*#numfmt(pathogen.result.value)*]),
         align(center + horizon, if pathogen.reference_range.lower == none {
