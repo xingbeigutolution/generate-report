@@ -5,6 +5,7 @@
 #import "intestinal-health-markers/intestinal-health-markers.typ": intestinal-health-markers
 #import "non-bacterial-members/non-bacterial-members.typ": non-bacterial-members
 #import "commensal-keystone-bacteria/commensal-keystone-bacteria.typ": commensal-keystone-bacteria
+#import "probiotic-bacterial-members/probiotic-bacterial-members.typ": probiotic-bacterial-members
 
 #set document(
   title: [GUTolution™ Microbiome Test Platinum],
@@ -33,6 +34,7 @@
   intestinal-health-markers,
   non-bacterial-members,
   commensal-keystone-bacteria,
+  probiotic-bacterial-members
 )
 
 #for (i, section) in sections.enumerate() {
