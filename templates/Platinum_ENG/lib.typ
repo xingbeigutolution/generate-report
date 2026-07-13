@@ -26,6 +26,16 @@
 #let green = rgb("56bc6c")
 #let red = rgb("de4d46")
 #let grey = rgb("595959")
+#let pie-palette = (
+    rgb("#7a9ec2"),  
+    rgb("#bfd8ec"), 
+    rgb("#a0c7e5"), 
+    rgb("#077098"), 
+    rgb("#7bb7de"), 
+    rgb("#638cca"), 
+    rgb("#5d82e2"), 
+    rgb("#91b6ef"), 
+  )
 
 #let style(body) = {
   show title: set text(size: 28pt, weight: "medium", tracking: 1.2pt)
