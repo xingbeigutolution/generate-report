@@ -1,6 +1,36 @@
 #import "../lib.typ": *
 #import "@preview/cetz:0.5.2"
 
+#let movement(seg) = {
+  let cluster-size = 0
+  let cluster = ()
+  let move = (0,)*seg.len()
+  for i in range(seg.len()) {
+    if seg.at(i) < 30deg {
+      move.at(i) = move.at(i - 1) + 1
+      cluster-size += 1
+    }
+    else {
+      cluster.push(cluster-size)
+      cluster-size = 0
+    }
+  }
+  cluster.push(cluster-size)
+  
+  let idx = 0
+  for k in range(move.len()) {
+    if move.at(k) != 0 {
+      if cluster.at(idx) == 0 {idx += 1}
+      move.at(k) = move.at(k) - (cluster.at(idx) + 1)/2
+    }
+    else {
+      idx += 1
+    }
+  }
+
+  return move
+}
+
 
 #let pie(report) = page(
   background: standard-page-background(
@@ -14,18 +44,17 @@
 
   group(name: "chart", {
     let offset = 0deg
-    let last-seg = 360deg
-    let index = 1
+    let seg = data.map(phylum => phylum.abundance/ 100 * 360deg)
+    let move 
+    let index = 0
     for phylum in data {
       stroke(white + 1pt)
       fill(pie-palette.at(calc.rem(index, 8)+1))
-      let seg = float(phylum.abundance) / 100 * 360deg
-      arc((offset, 3), start:offset, stop:offset+seg, mode:"PIE",radius:3, name:{phylum.name})
-      anchor(phylum.name, (offset + seg / 2, 3))
-      content((offset + seg / 2 + if (last-seg+seg)/2 < 15deg {10deg} else {0deg}, 5.5), align(center, [#phylum.name #phylum.abundance%]), name: "legend")
-      line(phylum.name, "legend", stroke:gray)
-      last-seg = seg
-      offset += seg
+      arc((offset, 3), start:offset, stop:offset+seg.at(index), mode:"PIE",radius:3, name:{phylum.name})
+      anchor(phylum.name, (offset + seg.at(index) / 2, 3))
+      content((offset + seg.at(index) / 2 + movement(seg).at(index) * 10deg, 6.5), align(center, [#phylum.name #phylum.abundance%]), name: "legend")
+      line(if offset + seg.at(index) / 2 < 270deg and offset + seg.at(index) / 2 > 90deg {"legend.east"} else {"legend.west"}, phylum.name, stroke:gray)
+      offset += seg.at(index)
       index += 1
     }}
 )
