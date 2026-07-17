@@ -26,15 +26,15 @@
 #let green = rgb("56bc6c")
 #let red = rgb("de4d46")
 #let grey = rgb("595959")
-#let pie-palette = (
-    rgb("#7a9ec2"),  
+#let pie-palette = ( 
     rgb("#bfd8ec"), 
-    rgb("#a0c7e5"), 
-    rgb("#077098"), 
-    rgb("#7bb7de"), 
-    rgb("#638cca"), 
-    rgb("#5d82e2"), 
+    rgb("#a0c7e5"),
     rgb("#91b6ef"), 
+    rgb("#7bb7de"), 
+    rgb("#7a9ec2"),  
+    rgb("#5d82e2"),
+    rgb("#638cca"),  
+    rgb("#077098"),
   )
 
 #let style(body) = {
