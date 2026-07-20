@@ -8,35 +8,27 @@
     size: 8pt,
   )[\* Retesting timelines may vary depending on intervention type, clinical presentation, and individual response. Times for reference only],
 )[
-  #show table.cell.where(x:1, y:0).or(table.cell.where(x:2, y:0)): it => align(start, it)
-  #show table.cell.where(y: 0): it => align(center + horizon, strong(it))
-  #show table.cell.where(x: 1).or(table.cell.where(x: 2)): it => text(features: ("tnum",), it)
-  #table(
+  #platinum-table(
+    left-align-cols: (1, 2),
+    tnum-cols: (3, 4),
     columns: (7%, 23%, 23%, 16%, 16%, 16%),
-    fill: (x, y) => if y == 0 { primary-container },
-    inset: (x: 0.7em, y: 1em),
     table.header(
-      [No.], [Marker], [Function], [Result], [Reference], [Re-test Interval\*]
+      [No.],
+      align(left)[Marker],
+      align(left)[Function],
+      [Result],
+      [Reference],
+      [Re-test Interval\*],
     ),
-    ..for (i, intestinal) in report.intestinal_health_markers.enumerate() {
+    ..for (i, marker) in report.intestinal_health_markers.enumerate() {
       (
-        align(center +horizon)[#(i+1)],
-        align(horizon)[#intestinal.name],
-        align(horizon)[#intestinal.function],
-        align(center + horizon, text(fill: if intestinal.result.rank == 1 { green } else if intestinal.result.rank == 3 {
-          red
-        } else {
-          yellow
-        })[*#numfmt_i(intestinal.result.value) #intestinal.unit*]),
-        align(center + horizon, if intestinal.reference_range.lower == none {
-          [<#numfmt_i(intestinal.reference_range.upper) #intestinal.unit]
-        } else if intestinal.reference_range.upper == none {
-          [>#numfmt_i(intestinal.reference_range.lower) #intestinal.unit]
-        } else {
-          box(align(center)[#numfmt_i(intestinal.reference_range.lower)-\ #numfmt_i(intestinal.reference_range.upper) #intestinal.unit])
-        }),
-        align(center + horizon)[#intestinal.retest_interval],
+        [#(i + 1)],
+        [#marker.name],
+        [#marker.function],
+        text(fill: rank-to-color(marker.result.rank))[*#marker.result.value #marker.unit*],
+        [#display-range(marker.reference_range) #marker.unit],
+        [#marker.retest_interval]
       )
-    }
+    },
   )
 ]

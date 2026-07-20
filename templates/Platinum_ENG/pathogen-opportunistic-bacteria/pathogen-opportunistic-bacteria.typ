@@ -8,33 +8,71 @@
     size: 8pt,
   )[\* Retesting timelines may vary depending on intervention type, clinical presentation, and individual response. Times for reference only],
 )[
-  #show table.cell.where(x: 0, y: 0): it => align(start, it)
-  #show table.cell.where(y: 0): it => align(center + horizon, strong(it))
-  #show table.cell.where(x: 1).or(table.cell.where(x: 2)): it => text(features: ("tnum",), it)
-  #table(
-    columns: (24%, 15%, 15%, 27%, 19%),
-    fill: (x, y) => if y == 0 { primary-container },
-    inset: (x: 0.7em, y: 1em),
+  #platinum-table(
+    left-align-cols: (0, 3),
+    columns: (23%, 15%, 15%, 28%, 19%),
+    tnum-cols: (1, 2),
+    small-font-cols: (3,),
     table.header(
-      [Bacterial\ Pathogens], [Result], [Reference], [Role / Gut & Host Function / Impact], [Re-test Interval\*]
+      align(left)[Bacterial Pathogens],
+      [Result],
+      [Reference],
+      [Role / Gut & Host Function / Impact],
+      [Retest\ Interval\*],
     ),
     ..for pathogen in report.pathogens {
       (
-        align(horizon)[_#pathogen.name _],
-        align(center + horizon, text(fill: if pathogen.result.rank == 1 { green } else if pathogen.result.rank == 2 {
-          yellow
-        } else {
-          red
-        })[*#numfmt(pathogen.result.value)*]),
-        align(center + horizon, if pathogen.reference_range.lower == none {
-          [<#numfmt(pathogen.reference_range.upper)]
-        } else if pathogen.reference_range.upper == none {
-          [>#numfmt(pathogen.reference_range.lower)]
-        } else {
-          box(align(left)[#numfmt(pathogen.reference_range.lower)-\ #numfmt(pathogen.reference_range.upper)])
-        }),
-        [#text(size: 8pt, pathogen.impact)],
-        align(center + horizon)[#pathogen.retest_interval],
+        [_#pathogen.name _],
+        text(fill: rank-to-color(pathogen.result.rank))[*#numfmt(pathogen.result.value)*],
+        display-range(pathogen.reference_range),
+        [#pathogen.impact],
+        [#pathogen.retest_interval],
+      )
+    },
+  )
+  #pagebreak()
+  #platinum-table(
+    left-align-cols: (0, 3),
+    columns: (23%, 15%, 15%, 28%, 19%),
+    tnum-cols: (1, 2),
+    small-font-cols: (3,),
+    table.header(
+      align(left)[Dysbiotic / Overgrowth Bacteria],
+      [Result],
+      [Reference],
+      [Role / Gut & Host Function / Impact],
+      [Retest\ Interval\*],
+    ),
+    ..for bacteria in report.dysbiotic_overgrowth_bacteria {
+      (
+        [_#bacteria.name _],
+        text(fill: rank-to-color(bacteria.result.rank))[*#numfmt(bacteria.result.value)*],
+        display-range(bacteria.reference_range),
+        [#bacteria.impact],
+        [#bacteria.retest_interval],
+      )
+    },
+  )
+  #pagebreak()
+  #platinum-table(
+    left-align-cols: (0, 3),
+    columns: (23%, 15%, 15%, 28%, 19%),
+    tnum-cols: (1, 2),
+    small-font-cols: (3,),
+    table.header(
+      align(left)[Commensal Overgrowth & Inflammatory-Related],
+      [Result],
+      [Reference],
+      [Role / Gut & Host Function / Impact],
+      [Retest\ Interval\*],
+    ),
+    ..for bacteria in report.commensal_overgrowth_inflammatory_related {
+      (
+        [_#bacteria.name _],
+        text(fill: rank-to-color(bacteria.result.rank))[*#numfmt(bacteria.result.value)*],
+        display-range(bacteria.reference_range),
+        [#bacteria.impact],
+        [#bacteria.retest_interval],
       )
     },
   )

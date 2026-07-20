@@ -1,6 +1,38 @@
 #import "../lib.typ": *
 #import "@preview/shadowed:0.3.0": shadow
 
+#let comment-card(label, comments) = shadow(
+  blur: 8pt,
+  dx: 0.5em,
+  dy: 0.5em,
+  fill: gray.lighten(10%).transparentize(50%),
+  rect(
+    width: 50%,
+    height: 5.5cm,
+    fill: rgb("f9f9f9"),
+    inset: 7pt,
+    stack(
+      spacing: 0.7em,
+      align(center, rect(
+        inset: 7pt,
+        width: 70%,
+        fill: primary-container.lighten(20%),
+        radius: 50%,
+        text(size: 12pt, fill: primary)[*#label*],
+      )),
+      {
+        set par(spacing: 0.8em, leading: 0.4em)
+        set text(size: 10pt)
+        for comment in comments {
+          align(left)[
+            - #comment
+          ]
+        }
+      },
+    ),
+  ),
+)
+
 #let at-a-glance(report) = page(background: standard-page-background(section-header: [At a glance..]))[
   #let bacteria-list = (
     "bacteroidetes",
@@ -86,37 +118,7 @@
       size: 7pt,
     )[\*Balance reflects distribution across microbial species and may differ from phyla-level patterns shown above]))
   }))
-  #let comment-card(label, comments) = shadow(
-    blur: 8pt,
-    dx: 0.5em,
-    dy: 0.5em,
-    fill: gray.lighten(10%).transparentize(50%),
-    rect(
-      width: 50%,
-      height: 5.5cm,
-      fill: rgb("f9f9f9"),
-      inset: 7pt,
-      stack(
-        spacing: 0.7em,
-        align(center, rect(
-          inset: 7pt,
-          width: 70%,
-          fill: primary-container.lighten(20%),
-          radius: 50%,
-          text(size: 12pt, fill: primary)[*#label*],
-        )),
-        {
-          set par(spacing: 0.8em)
-          for comment in comments {
-            align(left)[#set par(leading: 0.4em)
-              #set text(size: 10pt)
-              - #comment
-            ]
-          }
-        },
-      ),
-    ),
-  )
+
   #align(center, stack(
     stack(dir: ltr, spacing: 0.5cm, comment-card("What's Good", report.at_a_glance.comments_good), comment-card(
       "What's Missing",
