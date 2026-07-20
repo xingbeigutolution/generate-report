@@ -24,7 +24,7 @@
 }
 
 
-#let pie(report) = page(
+#let microbial-ecosystem-overview(report) = page(
   background: standard-page-background(
     section-header: [Microbial Ecosystem Overview],
   ),
@@ -89,8 +89,6 @@
       }))
     ),
   )))
-
-
 ]
 
 
