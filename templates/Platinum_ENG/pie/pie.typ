@@ -29,53 +29,66 @@
     section-header: [Microbial Ecosystem Overview],
   ),
 )[
-  #align(center, cetz.canvas({
-    import cetz.draw: *
+  #align(center, stack(dir: ltr, spacing: 0.3cm, box(align(left, text(size: 12pt)[*Phylum\ Composition*])), rect(
+    fill: rgb("#d0e7ec"),
+    width: 70%,
+    height: 9cm,
+    (
+      align(center + horizon, cetz.canvas({
+        import cetz.draw: *
 
-    let data = report.microbial_ecosystem.phylum_composition
+        let data = report.microbial_ecosystem.phylum_composition
 
-    group(name: "chart", {
-      let offset = 0deg
-      let seg = data.map(phylum => phylum.abundance / 100 * 360deg)
-      let legend_idx = cluster(seg).enumerate().filter(pair => pair.at(1)).map(pair => pair.at(0))
+        group(name: "chart", {
+          let offset = 0deg
+          let seg = data.map(phylum => phylum.abundance / 100 * 360deg)
+          let legend_idx = cluster(seg).enumerate().filter(pair => pair.at(1)).map(pair => pair.at(0))
 
-      for (index, phylum) in data.enumerate() {
-        stroke(white + 1pt)
-        fill(pie-palette.at(calc.rem(index, 8)))
-        arc((offset, 3), start: offset, stop: offset + seg.at(index), mode: "PIE", radius: 3, name: { phylum.name })
-        anchor(phylum.name, (offset + seg.at(index) / 2, 3))
-        if index not in legend_idx {
-          content((offset + seg.at(index) / 2, 5.5), align(center, [#phylum.name #phylum.abundance%]), name: "label")
-          line(
-            if offset + seg.at(index) / 2 < 270deg and offset + seg.at(index) / 2 > 90deg { "label.east" } else {
-              "label.west"
-            },
-            phylum.name,
-            stroke: gray,
-          )
-        }
+          for (index, phylum) in data.enumerate() {
+            stroke(white + 1pt)
+            fill(pie-palette.at(calc.rem(index, 8)))
+            arc((offset, 2.5), start: offset, stop: offset + seg.at(index), mode: "PIE", radius: 2.5, name: {
+              phylum.name
+            })
+            anchor(phylum.name, (offset + seg.at(index) / 2, 2.5))
+            if index not in legend_idx {
+              content(
+                (offset + seg.at(index) / 2, 4),
+                align(center, text(size: 8pt)[#phylum.name\ #phylum.abundance%]),
+                name: "label",
+              )
+              line(
+                "label",
+                phylum.name,
+                stroke: gray,
+              )
+            }
 
-        offset += seg.at(index)
-      }
+            offset += seg.at(index)
+          }
 
-      for (i, index) in legend_idx.enumerate() {
-        let phylum = data.at(index)
-        content(
-          (6, 1 + 0.5 * i),
-          anchor: "west",
-          align(
-            center,
-            [#box(width: 1em, height: 1em, fill: pie-palette.at(calc.rem(index, 8))) #phylum.name #phylum.abundance%],
-          ),
-          name: "legend",
-        )
-      }
-    })
-
-    on-layer(-1, {
-      rect-around("chart", padding: 0.2, fill: rgb("#d0e7ec"), stroke: none)
-    })
-  }))
+          if legend_idx.len() > 0 {
+            content(
+              (4.5, 3.5),
+              anchor: "west",
+              name: "legend",
+              stack(
+                spacing: 0.5em,
+                ..for (i, index) in legend_idx.enumerate() {
+                  let phylum = data.at(index)
+                  (
+                    text(
+                      size: 8pt,
+                    )[#box(width: 1em, height: 1em, fill: pie-palette.at(calc.rem(index, 8))) #phylum.name #phylum.abundance%],
+                  )
+                },
+              ),
+            )
+          }
+        })
+      }))
+    ),
+  )))
 
 
 ]
