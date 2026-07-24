@@ -135,7 +135,7 @@
 
     This metric serves as a practical proxy for total endotoxin (LPS) burden within the gut microbiome.
 
-    \*The Firmicutes:Bacteroidetes ratio reflects the proportional relationship between both phyla and may differ from individual phylum reference ranges.]
+    \*The Firmicutes: Bacteroidetes ratio reflects the proportional relationship between both phyla and may differ from individual phylum reference ranges.]
 ]
 
 
