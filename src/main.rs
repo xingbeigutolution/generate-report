@@ -47,6 +47,11 @@ struct GleneaglesTemplateArgs {
     show_gleneagles_logo: bool,
 }
 
+#[derive(Debug, Clone, IntoValue, IntoDict)]
+struct PlatinumTemplateArgs {
+
+}
+
 #[derive(Debug, Clone, Hash, PartialEq)]
 struct TypstPdfGenerationError(EcoVec<SourceDiagnostic>);
 impl Display for TypstPdfGenerationError {
@@ -64,18 +69,22 @@ fn templates() -> &'static [&'static str] {
         "Gleneagles_ENG (white label)",
         "Gleneagles_CN",
         "Gleneagles_CN (white label)",
+        "Platinum_ENG",
     ]
 }
 
 fn build_engine(name: impl AsRef<str>) -> anyhow::Result<TypstEngine<TypstTemplateMainFile>> {
     let name = name.as_ref();
     let template_dir = TEMPLATES.get_dir(name).unwrap();
-    let fonts = template_dir.find(&format!("{name}/**/*.ttf"))?;
+    let fonts = template_dir
+        .find(&format!("{name}/**/*.ttf"))?
+        .chain(template_dir.find(&format!("{name}/**/*.ttc"))?);
     let source_files = template_dir.find(&format!("{name}/**/*.typ"))?;
     let other_files = template_dir
         .find(&format!("{name}/**/*.png"))?
         .chain(template_dir.find(&format!("{name}/**/*.jpg"))?)
         .chain(template_dir.find(&format!("{name}/**/*.json"))?)
+        .chain(template_dir.find(&format!("{name}/**/*.svg"))?)
         .chain(template_dir.find(&format!("{name}/**/*.yml"))?)
         .chain(template_dir.find(&format!("{name}/**/*.yaml"))?);
     Ok(TypstEngine::builder()
@@ -175,7 +184,7 @@ fn compile(
             }
         }
         Err(err) => {
-            eprintln!("Error while compiling Gleneagles template:\n{}", err);
+            eprintln!("Error while compiling template:\n{}", err);
             Err(err)?;
         }
     }
@@ -281,6 +290,15 @@ fn main() -> anyhow::Result<()> {
                                 }
                                 .into_dict(),
                                 template_display_name,
+                            ),
+                            "Platinum_ENG" => compile(
+                                input,
+                                "Platinum_ENG",
+                                PlatinumTemplateArgs {
+                                    
+                                }
+                                .into_dict(),
+                                template_display_name
                             ),
                             _ => anyhow::Result::Err(anyhow::Error::new(StringError(
                                 "Template not implemented".to_string(),
