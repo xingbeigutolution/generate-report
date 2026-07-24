@@ -4,7 +4,15 @@
 
 #let commensal-keystone-bacteria(report) = page(background: standard-page-background(
   section-header: [Commensal and Keystone Bacteria],
-))[
+),
+footer: context[
+    #text(
+    size: 8pt,
+    )[\* Retesting timelines may vary depending on intervention type, clinical presentation, and individual response. Times for reference only]
+    #h(1fr)
+    #counter(page).display()
+  ],
+)[
   #platinum-table(
     columns: (23%, 15%, 15%, 32%, 15%),
     tnum-cols: (1, 2),
