@@ -49,12 +49,12 @@
 #let standard-page-background(section-header: none) = {
   image("images/background-pattern.svg")
   place(top, context {
-    let header = image("images/header-background.svg")
+    let header = image("images/header-background.png", width: 55em)
     box(height: measure(header).height, {
       header
       place(horizon, pad(top: 1em, left: 2em)[= #section-header])
     })
-    place(top + end, pad(top: 0.6em, right: 2em, image("images/gutolution-logo-header.svg", width: 10em)))
+    place(top + end, pad(top: 0.4em, right: 2em, image("images/gutolution-logo-header.svg", width: 10em)))
   })
 }
 
