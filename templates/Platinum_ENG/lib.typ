@@ -61,9 +61,14 @@
 #let page-style = {
   let f(it) = {
     set page(
+      paper: "a4",
       header: anchor(),
       margin: (top: 3cm, x: 1.2cm, bottom: 1.2cm),
-      numbering: "1",
+      numbering: (..nums) => text(
+        size: 15pt,
+        fill: primary,
+        numbering("1", nums.pos().first())
+      ),
       number-align: end,
     )
     set text(features: ("cv05",))

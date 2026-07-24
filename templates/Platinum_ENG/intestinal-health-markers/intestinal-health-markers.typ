@@ -6,9 +6,13 @@
   background: standard-page-background(
     section-header: [Intestinal Health Markers],
   ),
-  footer: text(
+  footer: context[
+    #text(
     size: 8pt,
-  )[\* Retesting timelines may vary depending on intervention type, clinical presentation, and individual response. Times for reference only],
+    )[\* Retesting timelines may vary depending on intervention type, clinical presentation, and individual response. Times for reference only]
+    #h(1fr)
+    #counter(page).display()
+  ],
 )[
   #platinum-table(
     left-align-cols: (1, 2),
