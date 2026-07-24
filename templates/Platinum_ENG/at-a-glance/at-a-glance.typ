@@ -94,14 +94,29 @@
       width: 100%,
       height: 1cm,
     )[
-      #let slider-tab(label, value) = place(center + bottom, dx: value * 1% - 50%, box[
-        *#label*
-        #v(0.3em)
-        #image("images/slider-arrow.svg")
-      ])
-      #slider-tab("Diversity", report.at_a_glance.diversity)
-      #slider-tab("Richness", report.at_a_glance.richness)
-      #slider-tab("Balance*", report.at_a_glance.balance)
+      #let slider-tab(items, min-gap: 6) = {
+        let sorted = items.sorted(key: it => it.at(1)).map( it => (label: it.at(0), value: it.at(1)))
+
+        let label_pos = ()
+        for (i, it) in sorted.enumerate() {
+          label_pos.push(it.value)
+          if calc.abs(it.value - sorted.at(i - 1).value) < min-gap {
+            label_pos.at(i) += min-gap/2
+            label_pos.at(i - 1) -= min-gap/2
+          }
+        }
+
+        for i in range(sorted.len()) {
+          place(center + bottom, dx: sorted.at(i).value * 1% - 50%, image("images/slider-arrow.svg"))
+          place(center + bottom, dx: label_pos.at(i) * 1% - 50%, dy: -2.7em, box[*#sorted.at(i).label*])
+        }
+      }
+
+      #slider-tab((
+        ("Diversity", report.at_a_glance.diversity),
+        ("Richness", report.at_a_glance.richness),
+        ("Balance*", report.at_a_glance.balance),
+      ))
     ]
     box(
       fill: gradient.linear(space: oklch, (magenta, 0%), (banana, 30%), (cyan, 50%), (banana, 70%), (magenta, 100%)),
